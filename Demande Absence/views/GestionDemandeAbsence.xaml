@@ -1,0 +1,206 @@
+﻿<Window x:Class="GET_MS.Views.GestionDemandeAbsence"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:cgmsui="clr-namespace:ClassGetMSUI.Views;assembly=ClassGetMSUI"
+        xmlns:ignore="http://www.galasoft.ch/ignore"
+        xmlns:mvvm="http://www.galasoft.ch/mvvmlight"
+        xmlns:vm="clr-namespace:GET_MS.ViewModels" 
+        xmlns:dialogs="https://github.com/fantasticfiasco/mvvm-dialogs"
+        xmlns:cuilv="clr-namespace:ClassUILibrary.Views;assembly=ClassUILibrary"
+        dialogs:DialogServiceViews.IsRegistered="True"
+        xmlns:local="clr-namespace:GET_MS.ViewModels" x:Name="Gestion_Demande_Absence" 
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize" 
+        Title="Gestion des Demandes d'Absences" Height="450" Width="1000">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ClassGetMSUI;component/Resources/MainSkin.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <cgmsui:EtatConverter x:Key="EtatConverter" />
+            <vm:ViewModelLocator x:Key="Locator" d:IsDataSource="True"/>
+            <cuilv:EnumBooleanConverter x:Key="EnumToBool" />
+        </ResourceDictionary>
+    </Window.Resources>
+    <Window.DataContext>
+        <Binding Path="GestionDemandeAbsence" Source="{StaticResource Locator}"/>
+    </Window.DataContext>
+    <i:Interaction.Behaviors>
+        <cuilv:WindowCloseBehavior Close="{Binding Close}" />
+    </i:Interaction.Behaviors>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <mvvm:EventToCommand 
+                    Command="{Binding LoadedCommand, Mode=OneWay}"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Unloaded">
+            <mvvm:EventToCommand 
+                    Command="{Binding UnLoadedCommand, Mode=OneWay}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Rectangle  HorizontalAlignment="Left" Height="345" Margin="10,49,0,0" Stroke="Black" VerticalAlignment="Top" Width="959"/>
+
+        <Label Content="Agent" HorizontalAlignment="Left" Height="32" FontWeight="Bold" Margin="25,64,0,0" VerticalAlignment="Top" Width="86"/>
+        <Label Content="Ajouter un" HorizontalAlignment="Center" Height="32" FontWeight="Bold" Margin="25,195,881,0" VerticalAlignment="Top" Width="86"/>
+        <ComboBox
+            VerticalAlignment="Top"
+            Margin="96,64,0,0"
+            Grid.IsSharedSizeScope="True"
+            ItemsSource="{Binding Agents}"
+            SelectedItem="{Binding SelectedAgent}" Height="25" HorizontalAlignment="Left" Width="276">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+
+                            <ColumnDefinition SharedSizeGroup="Nom"/>
+                            <ColumnDefinition SharedSizeGroup="Prénom"/>
+                            <ColumnDefinition SharedSizeGroup="P"/>
+                            <ColumnDefinition SharedSizeGroup="Matricule"/>
+                            <ColumnDefinition SharedSizeGroup="P1"/>
+
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding Nom}" Margin="4,0" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Prenom}" Margin="4,0"/>
+                        <TextBlock Grid.Column="2" Text="("/>
+                        <TextBlock Grid.Column="3" Text="{Binding Matricule}"/>
+                        <TextBlock Grid.Column="4" Text=")"/>
+
+
+                    </Grid>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <TextBox 
+            Margin="129,183,620,132"
+            TextWrapping="Wrap"            
+            Foreground="Crimson"
+            FontWeight="ExtraBold"
+            Visibility="{Binding Commentaire, Converter={StaticResource BoolToVis}}"
+            Text="{Binding Commentaire_gestionnaire}" RenderTransformOrigin="0.505,0.098"  />
+        <Label Content="Commentaire" HorizontalAlignment="Left" Height="32" FontWeight="Bold" Margin="20,213,0,0" VerticalAlignment="Top" Width="86"/>
+        <Label Content="Liste des demandes d'absences" FontSize="15" 
+            FontStyle="Italic" Margin="602,9,180,0" Height="35" VerticalAlignment="Top"/>
+
+
+
+
+        <StackPanel HorizontalAlignment="Center"
+            VerticalAlignment="Center" Margin="96,112,755,257" Width="141">
+            <RadioButton IsChecked="{Binding Status, ConverterParameter=En_cours, Converter={StaticResource EnumToBool}}"                       
+                Margin="29,5,39,5" Content="En cours" HorizontalAlignment="Center" Width="73"/>
+            <RadioButton IsChecked="{Binding Status, ConverterParameter=Toutes, Converter={StaticResource EnumToBool}}"                     
+                Margin="0,5,10,5" Content="Toutes" HorizontalAlignment="Center" Width="73"/>
+        </StackPanel>
+        <Label Content="Selection des Agents" FontSize="15" 
+            FontStyle="Italic" Margin="129,9,522,0" Height="35" VerticalAlignment="Top"/>
+        <ListView x:Name="LVAgent"
+            SelectionMode="Multiple" 
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"                   
+            ItemsSource="{Binding ListeDemande_Absence}" Margin="420,66,25,132" SelectionChanged="LVAgent_SelectionChanged">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <Setter Property="Background" Value="{Binding Etat, Converter={StaticResource EtatConverter}}" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>                
+                <GridView>
+                    <GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected}"
+                                          Command="{Binding DataContext.ShowCommentaireCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                        <CheckBox IsChecked="{Binding SelectAllAgents}"
+                            IsEnabled="True"/>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Matricule" 
+                        Width="60" 
+                        DisplayMemberBinding="{Binding Matricule}"/>
+                    <GridViewColumn Header="Nom" 
+                        Width="100"
+                        DisplayMemberBinding="{Binding Nom}"/>
+                    <GridViewColumn Header="Prénom" 
+                        Width="100" 
+                        DisplayMemberBinding="{Binding Prenom}"/>
+                    <GridViewColumn Header="Date début" 
+                        Width="80" 
+                        DisplayMemberBinding="{Binding Date_debut, StringFormat=d}"/>
+                    <GridViewColumn Header="Date fin" 
+                        Width="80" 
+                        DisplayMemberBinding="{Binding Date_fin, StringFormat=d}"/>
+                    <GridViewColumn Header="Type" 
+                        Width="60" 
+                        DisplayMemberBinding="{Binding Type_Jour}"/>
+
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <TextBox 
+            Margin="420,312,360,27"
+            TextWrapping="Wrap"
+            IsEnabled="False"  
+            Foreground="Crimson"
+            FontWeight="ExtraBold"
+            Visibility= "{Binding Commentaire, Converter={StaticResource BoolToVis}}"
+            Text="{Binding SelectedDemande_Absence}" RenderTransformOrigin="0.505,0.098"  />
+        <Button Content="Quitter"
+            Width="100"
+            Margin="0,342,25,27"
+            HorizontalAlignment="Right"
+            Background="SteelBlue"
+            Foreground="White"
+            Command="{Binding QuitterCommand}"/>
+        <Label Content="Commentaire ajouté par l'Agent :" HorizontalAlignment="Left" Height="32" FontWeight="Bold" Margin="420,287,0,0" VerticalAlignment="Top" Width="205"
+               Visibility= "{Binding Commentaire, Converter={StaticResource BoolToVis}}"/>
+        <Label Content="Demandes :" HorizontalAlignment="Left" Height="32" FontWeight="Bold" Margin="25,112,0,0" VerticalAlignment="Top" Width="86"/>
+        <Button
+            Content="Imprimer"
+            Margin="743,342,148,27"
+            Background="SteelBlue"
+            Command="{Binding ImprimerCommand}" Cursor="Hand" Foreground="#FFFBF7F7"/>
+        <Button
+            Content="Accepter"
+            Margin="26,342,0,27"
+            Background="SteelBlue"
+            Command="{Binding AccepterCommand}" Cursor="Hand" Foreground="#FFFBF7F7" HorizontalAlignment="Left" Width="100" RenderTransformOrigin="-5.599,0.526"/>
+        <Button
+            Content="Refuser"
+            Margin="0,342,746,27"
+            Background="SteelBlue"
+            Command="{Binding RefuserCommand}" Cursor="Hand" Foreground="#FFFBF7F7" HorizontalAlignment="Right" Width="102"/>
+        <Button
+            HorizontalAlignment="Right" 
+            VerticalAlignment="Center" 
+            Content="?" 
+            FontSize="20" 
+            FontWeight="Bold"
+            Background="White"
+            BorderThickness="0"
+            Margin="0,10,10,380" 
+            Command="{Binding AideCommand}" Height="29" Width="11"/>
+        <Button
+            Content="Supprimer"
+            Margin="0,342,622,27"
+            Background="SteelBlue"
+            Command="{Binding SupprimerCommand}" Cursor="Hand" Foreground="#FFFBF7F7" HorizontalAlignment="Right" Width="102"/>
+        <Button
+            Content="Congés"
+            Margin="26,281,0,88"
+            Background="SteelBlue"
+            ToolTip="Mise à jour des congés"
+            Visibility= "{Binding Commentaire2, Converter={StaticResource BoolToVis}}"
+            Command="{Binding CongesCommand}" Cursor="Hand" Foreground="#FFFBF7F7" HorizontalAlignment="Left" Width="100" RenderTransformOrigin="-5.599,0.526"/>
+
+
+
+
+    </Grid>
+</Window>

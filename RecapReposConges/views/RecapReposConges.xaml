@@ -1,0 +1,201 @@
+﻿<Window x:Class="ClassCrystalReportProduction.Dialogs.RecapReposConges"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:ignore="http://www.galasoft.ch/ignore"
+             xmlns:mvvm="http://www.galasoft.ch/mvvmlight"
+             xmlns:vm="clr-namespace:ClassCrystalReportProduction.ViewModels" 
+             xmlns:dialogs="https://github.com/fantasticfiasco/mvvm-dialogs"
+             xmlns:local="clr-namespace:ClassCrystalReportProduction.Dialogs" x:Name="Recap_ReposConges" 
+             xmlns:cuilv="clr-namespace:ClassUILibrary.Views;assembly=ClassUILibrary"        
+             mc:Ignorable="d ignore"
+             dialogs:DialogServiceViews.IsRegistered="True"
+            ResizeMode="NoResize" 
+            Title="Recapitulatif des repos et congés" 
+            WindowStartupLocation="CenterOwner" 
+            Width="600" 
+            Height="600">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <vm:ViewModelLocator x:Key="Locator" d:IsDataSource="True"/>
+            <cuilv:EnumBooleanConverter x:Key="EnumToBool" />
+        </ResourceDictionary>
+    </Window.Resources>
+    <Window.DataContext>
+        <Binding Path="RecapReposConges" Source="{StaticResource Locator}"/>
+    </Window.DataContext>
+
+    <i:Interaction.Behaviors>
+        <cuilv:WindowCloseBehavior Close="{Binding Close}" />
+    </i:Interaction.Behaviors>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <mvvm:EventToCommand 
+                    Command="{Binding LoadedCommand, Mode=OneWay}"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Unloaded">
+            <mvvm:EventToCommand 
+                    Command="{Binding UnLoadedCommand, Mode=OneWay}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid Margin="0,0,-6,-1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="91*"/>
+            <ColumnDefinition Width="209*"/>
+        </Grid.ColumnDefinitions>
+        <ListView x:Name="LVAgent"			
+			ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+			ItemsSource="{Binding Agents}" Margin="10,69,0,200"  Grid.Column="1" HorizontalAlignment="Left" Width="384">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected}"
+                                          Command="{Binding DataContext.UpdateListPeriode, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                        <CheckBox IsChecked="{Binding SelectAllAgents}"
+							      IsEnabled="True"
+                                  Command="{Binding DataContext.UpdateListPeriode, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"/>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Matricule"
+						Width="110" 
+						DisplayMemberBinding="{Binding Matricule}"/>
+                    <GridViewColumn Header="Nom" 
+						Width="120"
+						DisplayMemberBinding="{Binding Nom}"/>
+                    <GridViewColumn Header="Prénom" 
+						Width="120" 
+						DisplayMemberBinding="{Binding Prenom}"/>
+
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <ComboBox
+            Margin="17,0,29,456"
+            Grid.IsSharedSizeScope="True"
+            ItemsSource="{Binding Statuts}"
+            IsEnabled="{Binding IsEnable}"
+            SelectedItem="{Binding SelectedStatut}" Height="26" VerticalAlignment="Bottom">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition SharedSizeGroup="A"/>
+                            <ColumnDefinition SharedSizeGroup="B"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" 
+                            Text="{Binding IDStatut}"
+                            Margin="4,0,0,0"/>
+                        <TextBlock Grid.Column="1" 
+                            Text="{Binding Nom}"
+                            Margin="4,0,0,0"/>
+                    </Grid>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <ComboBox
+            Margin="17,141,29,0"
+            x:Name="CmbService" 
+            ItemsSource="{Binding Services}"
+            IsEnabled="{Binding IsEnable}"
+            SelectedItem="{Binding SelectedService}" Height="25" VerticalAlignment="Top">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Libelle}"
+                        Margin="4,0,0,0"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <ComboBox
+            Margin="17,202,29,0"
+            x:Name="CmbSection" 
+            ItemsSource="{Binding Emplois}"
+            IsEnabled="{Binding IsEnable}"
+            SelectedItem="{Binding SelectedEmploi}" Height="25" VerticalAlignment="Top">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Libelle}"
+                        Margin="4,0,0,0"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <Button
+            Content="Imprimer"
+            Margin="39,0,50,30"
+            Background="SteelBlue"
+            Command="{Binding ImprimerCommand}" Cursor="Hand" Foreground="#FFFBF7F7" Height="45" VerticalAlignment="Bottom"/>
+        <Button
+            Content="Quitter"
+            Margin="301,0,24,30"
+            Background="SteelBlue"
+            Command="{Binding QuitterCommand}" Cursor="Hand" Foreground="#FFFBF7F7" Height="45" VerticalAlignment="Bottom" Grid.Column="1"/>
+        <ListView x:Name="LVPeriode"  
+            SelectionMode="Single"   
+            SelectedItem="{Binding PerModIsSelected}"      
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+            ItemsSource="{Binding PeriodeCommun}" Margin="10,402,0,30"  Grid.Column="1" HorizontalAlignment="Left" Width="257">
+            <ListView.View>
+                <GridView>
+                    <!--<GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding DataContext.PerModIsSelected.IsSelectedPeriode, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
+
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+
+                    </GridViewColumn>-->
+                    <GridViewColumn Header="Debut"
+                        Width="110" 
+                        DisplayMemberBinding="{Binding Debut, StringFormat=d}" />
+                    <GridViewColumn Header="Fin" 
+                        Width="120"
+                        DisplayMemberBinding="{Binding Fin, StringFormat=d}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Label Content="Récapitulatif des Repos et Congés" FontSize="15" 
+            FontStyle="Italic" Margin="0,10,195,0" Height="35" VerticalAlignment="Top" HorizontalAlignment="Right" Width="232" Grid.ColumnSpan="2"/>
+        <Label
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Margin="0,116,112,431"
+            Content="Service" Height="25" Width="53" />
+        <Label
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Margin="0,177,112,370"
+            Content="Emploi" Height="25" Width="53" />
+        <Button Grid.Column="1"
+            HorizontalAlignment="Right" 
+            VerticalAlignment="Center" 
+            Content="?" 
+            FontSize="20" 
+            FontWeight="Bold"
+            Background="White"
+            BorderThickness="0"
+            Margin="0,0,10,543" 
+            Command="{Binding AideCommand}" Height="29" Width="11" RenderTransformOrigin="0.485,-2.552"/>
+        <Label
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Margin="0,372,256,175"
+            Content="Périodes de modulations" Height="25" Width="152" Grid.Column="1" />
+        <Label
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Margin="0,59,112,488"
+            Content="Contrat" Height="25" Width="53" />
+        <Label
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Margin="0,45,355,495"
+            Content="Agents" Height="32" Width="53" Grid.Column="1" />
+    </Grid>
+</Window>

@@ -1,0 +1,151 @@
+﻿<Window x:Class="ClassGetMSReferences.Views.WPFCodeRegime"
+               x:Name="WPFCodeRegimeXaml"
+              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ignore="http://www.galasoft.cg/ignore"
+             xmlns:dialogs="https://github.com/fantasticfiasco/mvvm-dialogs"
+             dialogs:DialogServiceViews.IsRegistered="True"
+             xmlns:local="clr-namespace:ClassGetMSReferences.Views"
+             DataContext="{Binding CodeRegime, Source={StaticResource Locator}}"
+             WindowStartupLocation="CenterScreen"
+             mc:Ignorable="d" Height="400" Width="857"  ResizeMode="NoResize" Icon="pack://application:,,,/ClassGetMSReferences;component/Ressources/Proget16.ico"        
+            xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"   
+            xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Platform">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="22*"/>
+            <RowDefinition Height="71*"/>
+        </Grid.RowDefinitions>
+
+        <Label Name="LbAide" Cursor="Hand" Content="?" HorizontalAlignment="Right" Height="33" VerticalAlignment="Top" Width="29" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="22" FontWeight="Bold">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseLeftButtonDown">
+                    <cmd:EventToCommand Command="{Binding Aide}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <Label.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Obtenir de l'aide</TextBlock>
+                        <TextBlock>Ouvrir le document d'aide.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Label.ToolTip>
+        </Label>
+
+        <Label x:Name="label" Content="Grands Régimes" HorizontalAlignment="Center" VerticalAlignment="Top" Width="155" Height="38" FontSize="20" Margin="354,10,318,0" RenderTransformOrigin="0.5,0.5"/>
+
+        <ListView x:Name="ListViewCodeRegime" ItemsSource="{Binding ListViewListe}" SelectionMode="Single" Margin="10,53,10,97" SelectedItem="{Binding ObsCodeRegime}" Grid.RowSpan="2">
+
+
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Loaded">
+                    <cmd:EventToCommand Command="{Binding LoadedPage}" />
+                </i:EventTrigger>
+                <i:EventTrigger EventName="MouseDoubleClick">
+                    <cmd:EventToCommand Command="{Binding Modifier}" CommandParameter="{Binding ObsCodeRegime}" IsEnabled="{Binding ControleDroit}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Modifier" Command="{Binding DataContext.Modifier, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="{Binding ObsCodeRegime}"/>
+                    <MenuItem Header="Supprimer" Command="{Binding DataContext.CMSupprimerListView, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="{Binding ObsCodeRegime}"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
+
+            <ListView.View>
+                <GridView>
+                    <GridView.ColumnHeaderContainerStyle>
+                        <Style TargetType="{x:Type GridViewColumnHeader}">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="IsEnabled" Value="False"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="TextElement.Foreground" Value="Black"/>
+                                    <Setter Property="Background" Value="White"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </GridView.ColumnHeaderContainerStyle>
+
+                    <GridViewColumn Width="100">
+                        <GridViewColumnHeader x:Name="Code" Content="Code" />
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding id}" FontWeight="Bold" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Width="500">
+                        <GridViewColumnHeader x:Name="Libelle" Content="Libelle" />
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding libelle}" FontWeight="Bold" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Width="100">
+                        <GridViewColumnHeader x:Name="Couleur" Content="Couleur" />
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Background="{Binding couleurVraie}" Text="                     " FontWeight="Bold" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Width="100">
+                        <GridViewColumnHeader x:Name="Suppprimer" Content="Supprimer" />
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsEnabled="{Binding Path=DataContext.ControleDroit, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                          Name="CbxSupprimer" FontWeight="Bold"                                          
+                                          Command="{Binding DataContext.CbxSupprimerListView, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                          CommandParameter="{Binding}"
+                                          IsChecked="{Binding supprimer}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <CheckBox Name="CbkCodeRegime" IsEnabled="{Binding ControleDroit}" Content="Tous les Grands Régimes" IsChecked="{Binding CbxChecked}" HorizontalAlignment="Left" Margin="10,0,0,77" Height="15" VerticalAlignment="Bottom" ToolTip="Afficher tous les Grands Régimes Enregistrées" Grid.Row="1">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Checked">
+                    <cmd:EventToCommand Command="{Binding CbkCodeRegime}"  />
+                </i:EventTrigger>
+                <i:EventTrigger EventName="Unchecked">
+                    <cmd:EventToCommand Command="{Binding CbkCodeRegimeUnchecked}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </CheckBox>
+
+        <Button Name="BtnAjouter" IsEnabled="{Binding ControleDroit}" Command="{Binding Ajouter}" Content="Ajouter" 
+                Margin="34,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="75" Height="50"  
+                KeyboardNavigation.TabIndex="6" Cursor="Hand" Background="SteelBlue" Foreground="#FFF7EBEB" Grid.Row="1"/>
+        <Button Name="BtnModifier" IsEnabled="{Binding ControleDroit}" Command="{Binding Modifier}" CommandParameter="{Binding ObsCodeRegime}" Content="Modifier" 
+                Margin="143,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="75" Height="50"  
+                KeyboardNavigation.TabIndex="6" Cursor="Hand" Background="SteelBlue" Foreground="#FFF7EBEB" Grid.Row="1"/>
+        <Button x:Name="BtnSupprimer" IsEnabled="{Binding ControleDroit}" Command="{Binding CMSupprimerListView}" CommandParameter="{Binding ObsCodeRegime}" Content="Supprimer" 
+                Margin="250,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="76" Height="50"  
+                KeyboardNavigation.TabIndex="6" Cursor="Hand" Background="SteelBlue" Foreground="#FFF7EBEB" Grid.Row="1"/>
+
+        <Button Name="BtnQuitter" Command ="{Binding CodeRegimeQuitter}" CommandParameter="{Binding ElementName=WPFCodeRegimeXaml}" Content="Quitter" 
+                HorizontalAlignment="Right" Margin="0,0,42,10" Width="75" Height="50" VerticalAlignment="Bottom"  
+                KeyboardNavigation.TabIndex="3" Cursor="Hand" Background="SteelBlue" Foreground="#FFF7EBEB" Grid.Row="1"/>
+
+
+    </Grid>
+</Window>
